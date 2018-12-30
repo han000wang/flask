@@ -20,18 +20,13 @@ def login():
     else:
         telephone = request.form.get('telephone')
         password = request.form.get('password')
-        #print(telephone,password)
         user=User.query.filter(User.telephone==telephone,User.password==password).first()
-        #print(user.telephone,user.password)
         if user:
             session['user_id']=user.id
             session.permanent=True
             return redirect(url_for('index'))
         else:
             return u'手机号码或者密码错误'
-
-
-
 
 @app.route('/register/',methods=['GET','POST'])
 def register():
@@ -54,6 +49,29 @@ def register():
                 db.session.add(user)
                 db.session.commit()
                 return redirect(url_for('login'))
+
+@app.route('/logout',methods=['POST','GET'])
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/question/',methods=['POST','GET'])
+def question():
+    if request.method=='GET':
+        return render_template('question.html')
+    else:
+        pass
+
+@app.context_processor
+def my_context_processor():
+    user_id=session.get('user_id')
+    if user_id:
+        user=User.query.filter(User.id==user_id).first()
+        if user:
+            return {'user':user}
+    return {}
+
+
 
 if __name__=='__main__':
     app.run()
